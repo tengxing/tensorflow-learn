@@ -1,9 +1,13 @@
-"""Provides utilities to preprocess images for the Inception networks."""
+#####################coding=utf-8######################################
+####################### 图片处理Test #######################################
+####################### created by tengxing on 2017.3 #################
 
 from __future__ import absolute_import, division, print_function
 
 import tensorflow as tf
 from tensorflow.python.ops import control_flow_ops
+import matplotlib.pyplot as plt
+
 
 
 def apply_with_random_selector(x, func, num_cases):
@@ -23,7 +27,6 @@ def apply_with_random_selector(x, func, num_cases):
       for case in range(num_cases)
   ])[0]
 
-
 def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
   """Distort the color of a Tensor images.
       Each color distortion is non-commutative and thus ordering of the color ops
@@ -40,7 +43,7 @@ def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
       Raises:
         ValueError: if color_ordering not in [0, 3]
       """
-  with tf.name_scope(scope, '预处理', [image]):
+  with tf.name_scope(scope, 'distort_color', [image]):
     if fast_mode:
       if color_ordering == 0:
         image = tf.image.random_brightness(image, max_delta=32. / 255.)
@@ -74,7 +77,6 @@ def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
 
     # The random_* ops do not necessarily clamp.
     return tf.clip_by_value(image, 0.0, 1.0)
-
 
 def distorted_bounding_box_crop(image,
                                 bbox,
@@ -131,6 +133,7 @@ def distorted_bounding_box_crop(image,
     return cropped_image, distort_bbox
 
 
+
 def preprocess_for_train(image, height, width, bbox, fast_mode=True,
                          scope=None):
   """Distort one images for training a network.
@@ -165,7 +168,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     # the coordinates are ordered [ymin, xmin, ymax, xmax].
     image_with_box = tf.image.draw_bounding_boxes(
         tf.expand_dims(image, 0), bbox)
-    tf.image_summary('image_with_bounding_boxes', image_with_box)
+    tf.summary.image('image_with_bounding_boxes', image_with_box)
 
     distorted_image, distorted_bbox = distorted_bounding_box_crop(image, bbox)
     # Restore the shape since the dynamic slice based upon the bbox_size loses
@@ -173,7 +176,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     distorted_image.set_shape([None, None, 3])
     image_with_distorted_box = tf.image.draw_bounding_boxes(
         tf.expand_dims(image, 0), distorted_bbox)
-    tf.image_summary('images_with_distorted_bounding_box',
+    tf.summary.image('images_with_distorted_bounding_box',
                      image_with_distorted_box)
 
     # This resizing operation may distort the images because the aspect
@@ -189,7 +192,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
             x, [height, width], method=method),
         num_cases=num_resize_cases)
 
-    tf.image_summary('cropped_resized_image',
+    tf.summary.image('cropped_resized_image',
                      tf.expand_dims(distorted_image, 0))
 
     # Randomly flip the images horizontally.
@@ -201,77 +204,23 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
         lambda x, ordering: distort_color(x, ordering, fast_mode),
         num_cases=4)
 
-    tf.image_summary('final_distorted_image',
+    tf.summary.image('final_distorted_image',
                      tf.expand_dims(distorted_image, 0))
-    distorted_image = tf.sub(distorted_image, 0.5)
-    distorted_image = tf.mul(distorted_image, 2.0)
+    #distorted_image = tf.sub(distorted_image, 0.5)
+    #distorted_image = tf.mul(distorted_image, 2.0)
     return distorted_image
 
+#加载图片
+img_raw_data = tf.gfile.FastGFile("images/cat.jpg", 'r').read()
 
-def preprocess_for_eval(image,
-                        height,
-                        width,
-                        central_fraction=0.875,
-                        scope=None):
-  """Prepare one images for evaluation.
-      If height and width are specified it would output an images with that size by
-      applying resize_bilinear.
-      If central_fraction is specified it would cropt the central fraction of the
-      input images.
-      Args:
-        image: 3-D Tensor of images. If dtype is tf.float32 then the range should be
-          [0, 1], otherwise it would converted to tf.float32 assuming that the range
-          is [0, MAX], where MAX is largest positive representable number for
-          int(8/16/32) data type (see `tf.images.convert_image_dtype` for details)
-        height: integer
-        width: integer
-        central_fraction: Optional Float, fraction of the images to crop.
-        scope: Optional scope for name_scope.
-      Returns:
-        3-D float Tensor of prepared images.
-      """
-  with tf.name_scope(scope, 'eval_image', [image, height, width]):
-    if image.dtype != tf.float32:
-      image = tf.image.convert_image_dtype(image, dtype=tf.float32)
-    # Crop the central region of the images with an area containing 87.5% of
-    # the original images.
-    if central_fraction:
-      image = tf.image.central_crop(image, central_fraction=central_fraction)
+with tf.Session() as sess:
 
-    if height and width:
-      # Resize the images to the specified height and width.
-      image = tf.expand_dims(image, 0)
-      image = tf.image.resize_bilinear(
-          image, [height, width], align_corners=False)
-      image = tf.squeeze(image, [0])
-    image = tf.sub(image, 0.5)
-    image = tf.mul(image, 2.0)
-    return image
+    #转换
+    img_data = tf.image.decode_jpeg(img_raw_data)
+    # boxes
+    boxes = tf.constant([[[0.05, 0.05, 0.9, 0.7], [0.37, 0.47, 0.5, 0.56]]])
 
-
-def preprocess_image(image,
-                     height,
-                     width,
-                     is_training=False,
-                     bbox=None,
-                     fast_mode=True):
-  """Pre-process one images for training or evaluation.
-      Args:
-        image: 3-D Tensor [height, width, channels] with the images.
-        height: integer, images expected height.
-        width: integer, images expected width.
-        is_training: Boolean. If true it would transform an images for train,
-          otherwise it would transform it for evaluation.
-        bbox: 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
-          where each coordinate is [0, 1) and the coordinates are arranged as
-          [ymin, xmin, ymax, xmax].
-        fast_mode: Optional boolean, if True avoids slower transformations.
-      Returns:
-        3-D float Tensor containing an appropriately scaled images
-      Raises:
-        ValueError: if user does not provide bounding box
-      """
-  if is_training:
-    return preprocess_for_train(image, height, width, bbox, fast_mode)
-  else:
-    return preprocess_for_eval(image, height, width)
+    for i in range(10):
+        result = preprocess_for_train(img_data, 299, 299, boxes)
+        plt.imshow(result.eval())
+        plt.show()
