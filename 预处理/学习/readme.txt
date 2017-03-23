@@ -12,5 +12,5 @@
 
 test
 
-我的博客 :blog.yjxxclub.cn
+我的博客 : blog.yjxxclub.cn
 github : http://www.github.com/tengxing
