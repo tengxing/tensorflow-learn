@@ -5,8 +5,8 @@
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-# read the images
-image_raw_data = tf.gfile.FastGFile("images/cat.jpg", 'r').read()
+# read the test
+image_raw_data = tf.gfile.FastGFile("test/cat.jpg", 'r').read()
 
 with tf.Session() as sess:
     # 解码得到三维矩阵

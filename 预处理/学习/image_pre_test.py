@@ -28,18 +28,18 @@ def apply_with_random_selector(x, func, num_cases):
   ])[0]
 
 def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
-  """Distort the color of a Tensor images.
+  """Distort the color of a Tensor test.
       Each color distortion is non-commutative and thus ordering of the color ops
       matters. Ideally we would randomly permute the ordering of the color ops.
       Rather then adding that level of complication, we select a distinct ordering
       of color ops for each preprocessing thread.
       Args:
-        image: 3-D Tensor containing single images in [0, 1].
+        image: 3-D Tensor containing single test in [0, 1].
         color_ordering: Python int, a type of distortion (valid values: 0-3).
         fast_mode: Avoids slower ops (random_hue and random_contrast)
         scope: Optional scope for name_scope.
       Returns:
-        3-D Tensor color-distorted images on range [0, 1]
+        3-D Tensor color-distorted test on range [0, 1]
       Raises:
         ValueError: if color_ordering not in [0, 3]
       """
@@ -86,23 +86,23 @@ def distorted_bounding_box_crop(image,
                                 max_attempts=100,
                                 scope=None):
   """Generates cropped_image using a one of the bboxes randomly distorted.
-      See `tf.images.sample_distorted_bounding_box` for more documentation.
+      See `tf.test.sample_distorted_bounding_box` for more documentation.
       Args:
-        image: 3-D Tensor of images (it will be converted to floats in [0, 1]).
+        image: 3-D Tensor of test (it will be converted to floats in [0, 1]).
         bbox: 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
           where each coordinate is [0, 1) and the coordinates are arranged
           as [ymin, xmin, ymax, xmax]. If num_boxes is 0 then it would use the whole
-          images.
+          test.
         min_object_covered: An optional `float`. Defaults to `0.1`. The cropped
-          area of the images must contain at least this fraction of any bounding box
+          area of the test must contain at least this fraction of any bounding box
           supplied.
         aspect_ratio_range: An optional list of `floats`. The cropped area of the
-          images must have an aspect ratio = width / height within this range.
-        area_range: An optional list of `floats`. The cropped area of the images
-          must contain a fraction of the supplied images within in this range.
+          test must have an aspect ratio = width / height within this range.
+        area_range: An optional list of `floats`. The cropped area of the test
+          must contain a fraction of the supplied test within in this range.
         max_attempts: An optional `int`. Number of attempts at generating a cropped
-          region of the images of the specified constraints. After `max_attempts`
-          failures, return the entire images.
+          region of the test of the specified constraints. After `max_attempts`
+          failures, return the entire test.
         scope: Optional scope for name_scope.
       Returns:
         A tuple, a 3-D Tensor cropped_image and the distorted bbox
@@ -111,13 +111,13 @@ def distorted_bounding_box_crop(image,
     # Each bounding box has shape [1, num_boxes, box coords] and
     # the coordinates are ordered [ymin, xmin, ymax, xmax].
 
-    # A large fraction of images datasets contain a human-annotated bounding
-    # box delineating the region of the images containing the object of interest.
+    # A large fraction of test datasets contain a human-annotated bounding
+    # box delineating the region of the test containing the object of interest.
     # We choose to create a new bounding box for the object which is a randomly
     # distorted version of the human-annotated bounding box that obeys an
     # allowed range of aspect ratios, sizes and overlap with the human-annotated
     # bounding box. If no box is supplied, then we assume the bounding box is
-    # the entire images.
+    # the entire test.
     sample_distorted_bounding_box = tf.image.sample_distorted_bounding_box(
         tf.shape(image),
         bounding_boxes=bbox,
@@ -128,7 +128,7 @@ def distorted_bounding_box_crop(image,
         use_image_if_no_bounding_boxes=True)
     bbox_begin, bbox_size, distort_bbox = sample_distorted_bounding_box
 
-    # Crop the images to the specified bounding box.
+    # Crop the test to the specified bounding box.
     cropped_image = tf.slice(image, bbox_begin, bbox_size)
     return cropped_image, distort_bbox
 
@@ -136,17 +136,17 @@ def distorted_bounding_box_crop(image,
 
 def preprocess_for_train(image, height, width, bbox, fast_mode=True,
                          scope=None):
-  """Distort one images for training a network.
-      Distorting images provides a useful technique for augmenting the data
+  """Distort one test for training a network.
+      Distorting test provides a useful technique for augmenting the data
       set during training in order to make the network invariant to aspects
-      of the images that do not effect the label.
+      of the test that do not effect the label.
       Additionally it would create image_summaries to display the different
-      transformations applied to the images.
+      transformations applied to the test.
       Args:
-        image: 3-D Tensor of images. If dtype is tf.float32 then the range should be
+        image: 3-D Tensor of test. If dtype is tf.float32 then the range should be
           [0, 1], otherwise it would converted to tf.float32 assuming that the range
           is [0, MAX], where MAX is largest positive representable number for
-          int(8/16/32) data type (see `tf.images.convert_image_dtype` for details).
+          int(8/16/32) data type (see `tf.test.convert_image_dtype` for details).
         height: integer
         width: integer
         bbox: 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
@@ -156,7 +156,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
           bi-cubic resizing, random_hue or random_contrast).
         scope: Optional scope for name_scope.
       Returns:
-        3-D float Tensor of distorted images used for training with range [-1, 1].
+        3-D float Tensor of distorted test used for training with range [-1, 1].
       """
   with tf.name_scope(scope, 'distort_image', [image, height, width, bbox]):
     if bbox is None:
@@ -179,7 +179,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     tf.summary.image('images_with_distorted_bounding_box',
                      image_with_distorted_box)
 
-    # This resizing operation may distort the images because the aspect
+    # This resizing operation may distort the test because the aspect
     # ratio is not respected. We select a resize method in a round robin
     # fashion based on the thread number.
     # Note that ResizeMethod contains 4 enumerated resizing methods.
@@ -195,7 +195,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     tf.summary.image('cropped_resized_image',
                      tf.expand_dims(distorted_image, 0))
 
-    # Randomly flip the images horizontally.
+    # Randomly flip the test horizontally.
     distorted_image = tf.image.random_flip_left_right(distorted_image)
 
     # Randomly distort the colors. There are 4 ways to do it.
@@ -222,5 +222,5 @@ with tf.Session() as sess:
 
     for i in range(10):
         result = preprocess_for_train(img_data, 299, 299, boxes)
-        plt.imshow(result.eval())
-        plt.show()
+        print (result)
+

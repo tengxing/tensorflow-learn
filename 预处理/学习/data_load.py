@@ -18,16 +18,21 @@ features = tf.parse_single_example(
         'i': tf.FixedLenFeature([], tf.int64),
         'j': tf.FixedLenFeature([], tf.int64)
     }
+
 )
+a = [features['i']]
+print a
 
 with tf.Session() as sess:
+
     tf.initialize_all_variables().run()
-    print sess.run(files)
+
 
     coord = tf.train.Coordinator()
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
     for i in range(5):
+        print sess.run(a)
         print sess.run([features['i'], features['j']])
     coord.request_stop()
     coord.join(threads)

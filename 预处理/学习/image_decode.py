@@ -4,7 +4,7 @@
 import tensorflow as tf
 import  matplotlib.pyplot as plt
 
-# read the images
+# read the test
 image_raw_data = tf.gfile.FastGFile("images/cat.jpg", 'r').read()
 
 with tf.Session() as sess:
@@ -12,16 +12,16 @@ with tf.Session() as sess:
     # img_data是一个张量
     img_data = tf.image.decode_jpeg(image_raw_data)
 
-    print img_data.eval()
+    print img_data.shape
 
     plt.imshow(img_data.eval())
     #如何直接读取图片？
-    #plt.imread("images/cat.jpg")
+    #plt.imread("test/cat.jpg")
     plt.show()
 
     # 还原img
     endoded_image = tf.image.encode_jpeg(img_data)
-    with tf.gfile.FastGFile("images/new_cat.jpg", 'wb') as f:
+    with tf.gfile.FastGFile("test/new_cat.jpg", 'wb') as f:
        f.write(endoded_image.eval())
 
     # convert为实数，方便读取
