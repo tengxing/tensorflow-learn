@@ -10,6 +10,10 @@ from PIL import Image
 import cv2
 import os
 
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 cwd = os.getcwd()
 
 #参数设置
@@ -17,8 +21,8 @@ cwd = os.getcwd()
 train_dir = {'test','test1'} #训练图片文件夹
 filename='train.tfrecords'    #生成train.tfrecords
 output_directory='tmp' #输出文件夹
-resize_height=32 #存储图片高度
-resize_width=32 #存储图片宽度
+resize_height=64 #存储图片高度
+resize_width=64 #存储图片宽度
 ###############################################################################################
 
 
@@ -59,7 +63,7 @@ def transform2tfrecord(train_dir, file_name, output_directory, resize_height, re
             image_path = class_path + image_name
             #image = Image.open(image_path)
             #image = image.resize((resize_height, resize_width))
-
+            print index
             image = cv2.imread(image_path)
             image = cv2.resize(image, (resize_height, resize_width))
             b, g, r = cv2.split(image)
@@ -104,7 +108,7 @@ def read_tfrecord(file_dir, filename):
     encoded_image = tf.decode_raw(features['image_raw'], tf.uint8)
     #encoded_image.set_shape([features['height'], features['width'], features['depth']])
     # image
-    encoded_image = tf.reshape(encoded_image, [64, 64, 3])
+    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width*3])
     # normalize
     image = tf.cast(encoded_image, tf.float32) * (1. / 255) - 0.5
     # label
@@ -166,25 +170,39 @@ def disp_tfrecords(file_dir, filename):
 
 #img, label = disp_tfrecords(output_directory, filename)
 
-#transform2tfrecord(train_dir, filename, output_directory, resize_height, resize_width)
+transform2tfrecord(train_dir, filename, output_directory, resize_height, resize_width)
 img, label = read_tfrecord(output_directory, filename) #读取函数
 
+# Create the model
+x = tf.placeholder(tf.float32, [None, 784])
+W = tf.Variable(tf.zeros([784, 10]))
+b = tf.Variable(tf.zeros([10]))
+y = tf.nn.softmax(tf.matmul(x, W) + b)
+# Define loss and optimizer
+y_ = tf.placeholder(tf.float32, [None, 10])
+
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
+
+# 使用shuffle_batch可以随机打乱输入 next_batch挨着往下取
+# shuffle_batch才能实现[img,label]的同步,也即特征和label的同步,不然可能输入的特征和label不匹配
+# 比如只有这样使用,才能使img和label一一对应,每次提取一个image和对应的label
+# shuffle_batch返回的值就是RandomShuffleQueue.dequeue_many()的结果
+# Shuffle_batch构建了一个RandomShuffleQueue，并不断地把单个的[img,label],送入队列中
 img_batch, label_batch = tf.train.shuffle_batch([img, label],
-                                               batch_size=1, capacity=2000,
-                                               min_after_dequeue=1000)
+                                                batch_size=2, capacity=2000,
+                                                min_after_dequeue=1000)
+
 # 初始化所有的op
 init = tf.global_variables_initializer()
 
-sess = tf.InteractiveSession()
-sess.run(init)
+with tf.Session() as sess:
+    sess.run(init)
 
-coord = tf.train.Coordinator()
-threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-for i in range(5):
-    print "tengxing"
-    a =sess.run(label_batch)
-    #print img_batch
-    #sess.run(label)
-coord.request_stop()
-coord.join(threads)
-sess.close()
+    # 启动队列
+    threads = tf.train.start_queue_runners(sess=sess)
+    for i in range(5):
+        val, l = sess.run([img_batch, label_batch])
+        # l = to_categorical(l, 12)
+        print(val.shape, l)
+
