@@ -18,7 +18,7 @@ cwd = os.getcwd()
 
 #参数设置
 #############################################################################################
-train_dir = {'test','test1'} #训练图片文件夹
+train_dir = {'images/1', 'images/2'} #训练图片文件夹
 filename='train.tfrecords'    #生成train.tfrecords
 output_directory='tmp' #输出文件夹
 resize_height=28 #存储图片高度
@@ -61,20 +61,19 @@ def transform2tfrecord(train_dir, file_name, output_directory, resize_height, re
         writer = tf.python_io.TFRecordWriter(filename)
         for image_name in os.listdir(class_path):
             image_path = class_path + image_name
-            #image = Image.open(image_path)
+            image = Image.open(image_path)
             #image = image.resize((resize_height, resize_width))
-            print index
-            image = cv2.imread(image_path)
-            image = cv2.resize(image, (resize_height, resize_width))
-            b, g, r = cv2.split(image)
-            image = cv2.merge([r, g, b])
+            #image = cv2.imread(image_path)
+            #image = cv2.resize(image, (resize_height, resize_width))
+            #b, g, r = cv2.split(image)
+            #image = cv2.merge([r, g, b])
             image_raw = image.tobytes()  # 将图片转化为原生bytes
             example = tf.train.Example(
                 features=tf.train.Features(feature={
                     'image_raw': _bytes_feature(image_raw),
-                    'height': _int64_feature(image.shape[0]),
-                    'width': _int64_feature(image.shape[1]),
-                    'depth': _int64_feature(image.shape[2]),
+                    #'height': _int64_feature(image.shape[0]),
+                    #'width': _int64_feature(image.shape[1]),
+                    #'depth': _int64_feature(image.shape[2]),
                     'label': _int64_feature(index)
                 })
             )
@@ -98,19 +97,18 @@ def read_tfrecord(file_dir, filename):
         serialized_example,
         features={
           'image_raw': tf.FixedLenFeature([], tf.string),
-          'width': tf.FixedLenFeature([], tf.int64),
-          'height': tf.FixedLenFeature([], tf.int64),
-          'depth': tf.FixedLenFeature([], tf.int64),
+          #'width': tf.FixedLenFeature([], tf.int64),
+          #'height': tf.FixedLenFeature([], tf.int64),
+          #'depth': tf.FixedLenFeature([], tf.int64),
           'label': tf.FixedLenFeature([], tf.int64)
         }
     )
-
     encoded_image = tf.decode_raw(features['image_raw'], tf.uint8)
     #encoded_image.set_shape([features['height'], features['width'], features['depth']])
     # image
-    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width*3])
+    encoded_image = tf.reshape(encoded_image, [2048])
     # normalize
-    image = tf.cast(encoded_image, tf.float32) * (1. / 255) - 0.5
+    image = tf.cast(encoded_image, tf.float32) * (1. / 255)
     # label
     label = tf.cast(features['label'], tf.int32)
     return image, label
@@ -226,9 +224,9 @@ evaluation_step, prediction = add_evaluation_step(final_tensor, label_input_ph)
 # shuffle_batch返回的值就是RandomShuffleQueue.dequeue_many()的结果
 # Shuffle_batch构建了一个RandomShuffleQueue，并不断地把单个的[img,label],送入队列中
 img_batch, label_batch = tf.train.shuffle_batch([img, label],
-                                                batch_size=100, capacity=1300,
+                                                batch_size=100, capacity=3300,
                                                 min_after_dequeue=1000)
-
+print img_batch.shape
 # 初始化所有的op
 init = tf.global_variables_initializer()
 
@@ -238,7 +236,7 @@ with tf.Session() as sess:
                                          sess.graph)
     # 启动队列
     threads = tf.train.start_queue_runners(sess=sess)
-    for i in range(200):
+    for i in range(4000):
         val, l = sess.run([img_batch, label_batch])
         # l = to_categorical(l, 12)
         #print(val.shape, l)
@@ -259,5 +257,5 @@ with tf.Session() as sess:
             print('%s: Step %d: Train accuracy = %.1f%%' % (datetime.now(), i,
                                                             train_accuracy * 100))
             #print('%s: Step %d: Cross entropy = %f' % (datetime.now(), i,
-             #                                          cross_entropy_value))
+            #                                          cross_entropy_value))
 
