@@ -1,0 +1,1 @@
+mnist手写字测试是tensorflow官方的实例。
