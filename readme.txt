@@ -1,16 +1,14 @@
-这些都是图片的基础处理：
+预处理：
 
-裁剪
+裁剪·色彩·旋转·标注·编码
 
-色彩
+tfrecords的制作：
 
-旋转
+制作·读取·加入队列
 
-标注
+mnist：
+官方例子(新手建议先不看train.py)
 
-编码
 
-test
-
-我的博客 : blog.yjxxclub.cn
+我的博客 : http://www.blog.yjxxclub.cn
 github : http://www.github.com/tengxing
