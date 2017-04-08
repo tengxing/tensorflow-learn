@@ -2,6 +2,7 @@
 import argparse
 import sys
 import os
+import datetime
 import tensorflow as tf
 from tfrecords_util import *
 from change import *
@@ -135,6 +136,7 @@ def main(_):
     print prediction
 
     # Merge all the summaries and write them out to /tmp/retrain_logs (by default)
+    merged = tf.summary.merge_all()
     train_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/train',
                                          sess.graph)
 
@@ -154,16 +156,28 @@ def main(_):
     threads = tf.train.start_queue_runners(sess=sess)
 
     # Run the training for as many cycles as requested on the command line.
-    for i in range(1):
+    for i in range(10):
         input_img, input_label = get_data_batch(sess, img_batch, label_batch)
-        print input_img.shape,input_label
+        #print input_img[0],input_label
 
+        # Feed the bottlenecks and ground truth into the graph, and run a training
+        # step. Capture training summaries for TensorBoard with the `merged` op.
+        train_summary, _ = sess.run([merged, train_step],
+                                    feed_dict={bottleneck_input: input_img,
+                                               ground_truth_input: input_label})
+        train_writer.add_summary(train_summary, i)
 
-
-
-
-
-
+        # Every so often, print out how well the graph is training.
+        is_last_step = (i + 1 == FLAGS.how_many_training_steps)
+        if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
+            train_accuracy, cross_entropy_value = sess.run(
+                [evaluation_step, cross_entropy],
+                feed_dict={bottleneck_input: input_img,
+                           ground_truth_input: input_label})
+            print('%s: Step %d: Train accuracy = %.1f%%' % (datetime.now(), i,
+                                                            train_accuracy * 100))
+            print('%s: Step %d: Cross entropy = %f' % (datetime.now(), i,
+                                                       cross_entropy_value))
 
 
 if __name__ == '__main__':

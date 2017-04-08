@@ -1,3 +1,4 @@
+#i want to use coding=UTF-8
 import tensorflow as tf
 import numpy as np
 
@@ -13,7 +14,6 @@ def run_bottleneck_on_image(sess, image_data, image_data_tensor,
 def getpool3(sess,data_tensor,labels,step,bottleneck_tensor,image_data_tensor):
     print data_tensor,labels
     for i in range(step):
-
         image_data = sess.run(
             data_tensor,
 
