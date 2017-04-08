@@ -18,11 +18,11 @@ cwd = os.getcwd()
 
 #参数设置
 #############################################################################################
-train_dir = {'dataset/train/test', 'dataset/train/2'} #训练图片文件夹
+train_dir = {'dataset/train/1', 'dataset/train/2'} #训练图片文件夹
 filename='train.tfrecords'    #生成train.tfrecords
 output_directory='tmp' #输出文件夹
-resize_height=64 #存储图片高度
-resize_width=64 #存储图片宽度
+resize_height=512 #存储图片高度
+resize_width=512 #存储图片宽度
 ###############################################################################################
 
 
@@ -96,16 +96,16 @@ def read_tfrecord(file_dir, filename):
           'label': tf.FixedLenFeature([], tf.int64)
         }
     )
-
+    #encoded_image = tf.decode_raw(features['image_raw'], np.byte)
     encoded_image = tf.decode_raw(features['image_raw'], tf.uint8)
     #encoded_image.set_shape([features['height'], features['width'], features['depth']])
     # image
-    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width,3])
+    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width*3])
     # normalize
     image = tf.cast(encoded_image, tf.float32) * (1. / 255) - 0.5
     # label
     label = tf.cast(features['label'], tf.int32)
-    return image, label
+    return encoded_image, label
 
 
 

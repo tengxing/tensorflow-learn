@@ -4,6 +4,7 @@ import sys
 import os
 import tensorflow as tf
 from tfrecords_util import *
+from change import *
 
 from tensorflow.python.platform import gfile
 
@@ -17,11 +18,11 @@ RESIZED_INPUT_TENSOR_NAME = 'ResizeBilinear:0'
 
 #参数设置
 #############################################################################################
-train_dir = {'dataset/train/test', 'dataset/train/2'} #训练图片文件夹
+train_dir = {'dataset/train/1', 'dataset/train/2'} #训练图片文件夹
 filename='train.tfrecords'    #生成train.tfrecords
 output_directory='tmp' #输出文件夹
-resize_height=64 #存储图片高度
-resize_width=64 #存储图片宽度
+resize_height=512 #存储图片高度
+resize_width=512 #存储图片宽度
 ###############################################################################################
 
 
@@ -93,6 +94,19 @@ def add_final_training_ops(class_count, final_tensor_name, bottleneck_tensor):
   return (train_step, cross_entropy_mean, bottleneck_input, ground_truth_input,
           final_tensor)
 
+def add_evaluation_step(result_tensor, ground_truth_tensor):
+  with tf.name_scope('accuracy'):
+    with tf.name_scope('correct_prediction'):
+      prediction = tf.argmax(result_tensor, 1)
+      correct_prediction = tf.equal(
+          prediction, tf.argmax(ground_truth_tensor, 1))
+    with tf.name_scope('accuracy'):
+      evaluation_step = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+  tf.summary.scalar('accuracy', evaluation_step)
+  return evaluation_step, prediction
+
+
+
 def main(_):
     # Setup the directory we'll write summaries to for TensorBoard
     if tf.gfile.Exists(FLAGS.summaries_dir):
@@ -114,7 +128,37 @@ def main(_):
                                             FLAGS.final_tensor_name,
                                             bottleneck_tensor)
 
-    print bottleneck_input,ground_truth_input,cross_entropy,train_step,final_tensor
+    #print bottleneck_input,ground_truth_input,cross_entropy,train_step,final_tensor
+    # Create the operations we need to evaluate the accuracy of our new layer.
+    evaluation_step, prediction = add_evaluation_step(
+        final_tensor, ground_truth_input)
+    print prediction
+
+    # Merge all the summaries and write them out to /tmp/retrain_logs (by default)
+    train_writer = tf.summary.FileWriter(FLAGS.summaries_dir + '/train',
+                                         sess.graph)
+
+
+    img, label = read_tfrecord(output_directory, filename)  # 读取函数
+    img_batch, label_batch = tf.train.shuffle_batch([img, label],
+                                                    batch_size=10, capacity=2000,
+                                                    min_after_dequeue=1000)
+    print img_batch
+    # Set up all our weights to their initial default values.
+    init = tf.global_variables_initializer()
+    sess.run(init)
+
+    #train_img,train_label = getpool3(sess,img,label,2,bottleneck_tensor,jpeg_data_tensor)
+
+    # 启动队列
+    threads = tf.train.start_queue_runners(sess=sess)
+
+    # Run the training for as many cycles as requested on the command line.
+    for i in range(1):
+        input_img, input_label = get_data_batch(sess, img_batch, label_batch)
+        print input_img.shape,input_label
+
+
 
 
 
