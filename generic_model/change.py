@@ -1,7 +1,8 @@
 #i want to use coding=UTF-8
 import tensorflow as tf
+MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 import numpy as np
-
+import random
 def run_bottleneck_on_image(sess, image_data, image_data_tensor,
                             bottleneck_tensor):
   bottleneck_values = sess.run(
@@ -32,3 +33,15 @@ def get_data_batch(sess, img_batch,label_batch):
         ground_truth[input_label_batch[i]] = 1.0
         input_label_batches.append(ground_truth)
     return (input_img_batch, input_label_batches)
+def get_data_batch1(data,class_count):
+    bottlenecks = []
+    ground_truths = []
+    for i in range(50):
+        label_index = random.randrange(class_count)
+        ground_truth = np.zeros(class_count, dtype=np.float32)
+        ground_truth[label_index] = 1.0
+        img = random.sample(data[label_index], 1)
+        img = np.squeeze(img) #qu []
+        bottlenecks.append(img)
+        ground_truths.append(ground_truth)
+    return bottlenecks,ground_truths

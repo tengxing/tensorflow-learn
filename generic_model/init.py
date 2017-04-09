@@ -2,11 +2,10 @@
 import argparse
 import sys
 import os
-import datetime
+from datetime import datetime
 import tensorflow as tf
 from tfrecords_util import *
 from change import *
-
 from tensorflow.python.platform import gfile
 
 BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:0'
@@ -115,8 +114,7 @@ def main(_):
     tf.gfile.MakeDirs(FLAGS.summaries_dir)
 
     #create the train data
-    transform2tfrecord(train_dir, filename, output_directory, resize_height, resize_width)
-
+    data =transform2tfrecord1(train_dir, filename, output_directory, resize_height, resize_width)
     # Set up the pre-trained graph.
     graph, bottleneck_tensor, jpeg_data_tensor, resized_image_tensor = (
         create_inception_graph())
@@ -141,11 +139,11 @@ def main(_):
                                          sess.graph)
 
 
-    img, label = read_tfrecord(output_directory, filename)  # 读取函数
-    img_batch, label_batch = tf.train.shuffle_batch([img, label],
-                                                    batch_size=10, capacity=2000,
-                                                    min_after_dequeue=1000)
-    print img_batch
+    #img, label = read_tfrecord(output_directory, filename)  # 读取函数
+    #img_batch, label_batch = tf.train.shuffle_batch([img, label],
+     #                                               batch_size=10, capacity=2000,
+      #                                              min_after_dequeue=1000)
+    #print img_batch.shape
     # Set up all our weights to their initial default values.
     init = tf.global_variables_initializer()
     sess.run(init)
@@ -153,12 +151,13 @@ def main(_):
     #train_img,train_label = getpool3(sess,img,label,2,bottleneck_tensor,jpeg_data_tensor)
 
     # 启动队列
-    threads = tf.train.start_queue_runners(sess=sess)
+    #threads = tf.train.start_queue_runners(sess=sess)
 
     # Run the training for as many cycles as requested on the command line.
-    for i in range(10):
-        input_img, input_label = get_data_batch(sess, img_batch, label_batch)
-        #print input_img[0],input_label
+    for i in range(2000):
+        #input_img, input_label = get_data_batch(sess, img_batch, label_batch)
+        input_img, input_label = get_data_batch1(data,2)
+        #print len(input_img[0]),len(input_label)
 
         # Feed the bottlenecks and ground truth into the graph, and run a training
         # step. Capture training summaries for TensorBoard with the `merged` op.

@@ -11,6 +11,8 @@ import cv2
 import os
 
 import sys
+from fast_pool import *
+
 reload(sys)
 sys.setdefaultencoding('utf8')
 
@@ -47,31 +49,59 @@ def load_file(examples_list_file):
 def transform2tfrecord(train_dir, file_name, output_directory, resize_height, resize_width):
     if not os.path.exists(output_directory) or os.path.isfile(output_directory):
         os.makedirs(output_directory)
-    for index, name in enumerate(train_dir):
-        class_path = cwd + "/" + name + "/"
-        filename = output_directory+"/"+file_name+('-%.5d' % (index))
-        writer = tf.python_io.TFRecordWriter(filename)
-        for image_name in os.listdir(class_path):
-            image_path = class_path + image_name
-            #image = Image.open(image_path)
-            #image = image.resize((resize_height, resize_width))
-            print index
-            image = cv2.imread(image_path)
-            #image = cv2.resize(image, (resize_height, resize_width))
-            b, g, r = cv2.split(image)
-            image = cv2.merge([r, g, b])
-            image_raw = image.tobytes()  # 将图片转化为原生bytes
-            example = tf.train.Example(
-                features=tf.train.Features(feature={
-                    'image_raw': _bytes_feature(image_raw),
-                    'height': _int64_feature(image.shape[0]),
-                    'width': _int64_feature(image.shape[1]),
-                    'depth': _int64_feature(image.shape[2]),
-                    'label': _int64_feature(index)
-                })
-            )
-            writer.write(example.SerializeToString())
-        writer.close()
+    with tf.Session() as sess:
+        for index, name in enumerate(train_dir):
+            class_path = cwd + "/" + name + "/"
+            filename = output_directory+"/"+file_name+('-%.5d' % (index))
+            writer = tf.python_io.TFRecordWriter(filename)
+            for image_name in os.listdir(class_path):
+                image_path = class_path + image_name
+                #image = Image.open(image_path)
+                #image = image.resize((resize_height, resize_width))
+                print index
+                image = cv2.imread(image_path)
+                image =fast_pool(image)
+                print image.shape
+                # 解码得到三维矩阵
+                # img_data是一个张量
+                #img_data = tf.image.decode_jpeg(image)
+                #image = cv2.resize(image, (resize_height, resize_width))
+                #b, g, r = cv2.split(image)
+                #image = cv2.merge([r, g, b])
+                image_raw = image.tobytes()  # 将图片转化为原生bytes
+                example = tf.train.Example(
+                    features=tf.train.Features(feature={
+                        'image_raw': _bytes_feature(image_raw),
+                        #'height': _int64_feature(image.shape[0]),
+                        #'width': _int64_feature(image.shape[1]),
+                        #'depth': _int64_feature(image.shape[2]),
+                        'label': _int64_feature(index)
+                    })
+                )
+                writer.write(example.SerializeToString())
+            writer.close()
+def transform2tfrecord1(train_dir, file_name, output_directory, resize_height, resize_width):
+    if not os.path.exists(output_directory) or os.path.isfile(output_directory):
+        os.makedirs(output_directory)
+    with tf.Session() as sess:
+        data = {}
+        for index, name in enumerate(train_dir):
+            class_path = cwd + "/" + name + "/"
+            filename = output_directory+"/"+file_name+('-%.5d' % (index))
+            writer = tf.python_io.TFRecordWriter(filename)
+            a = []
+            for image_name in os.listdir(class_path):
+
+                image_path = class_path + image_name
+                #image = Image.open(image_path)
+                #image = image.resize((resize_height, resize_width))
+                print index
+                image = cv2.imread(image_path)
+                image =fast_pool1(image)
+                print image.shape
+                a.append(image)
+            data[index] = a
+        return data
 
 
 def read_tfrecord(file_dir, filename):
@@ -90,9 +120,9 @@ def read_tfrecord(file_dir, filename):
         serialized_example,
         features={
           'image_raw': tf.FixedLenFeature([], tf.string),
-          'width': tf.FixedLenFeature([], tf.int64),
-          'height': tf.FixedLenFeature([], tf.int64),
-          'depth': tf.FixedLenFeature([], tf.int64),
+          #'width': tf.FixedLenFeature([], tf.int64),
+          #'height': tf.FixedLenFeature([], tf.int64),
+          #'depth': tf.FixedLenFeature([], tf.int64),
           'label': tf.FixedLenFeature([], tf.int64)
         }
     )
@@ -100,7 +130,7 @@ def read_tfrecord(file_dir, filename):
     encoded_image = tf.decode_raw(features['image_raw'], tf.uint8)
     #encoded_image.set_shape([features['height'], features['width'], features['depth']])
     # image
-    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width*3])
+    encoded_image = tf.reshape(encoded_image, [2048])
     # normalize
     image = tf.cast(encoded_image, tf.float32) * (1. / 255) - 0.5
     # label
