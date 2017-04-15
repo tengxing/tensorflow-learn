@@ -88,12 +88,10 @@ def get_train_image_batch(image_lists,batch_size):
     for i in range(batch_size):
         label_index = random.randrange(class_count)
         label_name = list(image_lists.keys())[label_index]
-        #image_index = random.randrange(MAX_NUM_IMAGES_PER_CLASS + 1)
-        image_name_list = (image_lists[label_name]['training'])
-        label_index = random.randrange(class_count)
+        image_name_list = image_lists[label_name]
         ground_truth = np.zeros(class_count, dtype=np.float32)
         ground_truth[label_index] = 1.0
-        img = random.sample(image_name_list, 1)
+        img = random.sample(image_name_list["training"], 1)#only training
         img = np.squeeze(img)  # qu []
         bottlenecks.append(img)
         ground_truths.append(ground_truth)

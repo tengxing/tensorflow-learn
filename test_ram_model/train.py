@@ -2,7 +2,8 @@
 import sys
 import argparse
 from datetime import datetime
-
+from tfrecords_util import *
+from change import *
 import tensorflow as tf
 from tensorflow.python.framework import graph_util
 from tensorflow.python.platform import gfile
@@ -38,7 +39,6 @@ def main(_):
 
     # load images to cache
     image_caches = create_image_caches(image_lists,FLAGS.image_dir)
-
     #print "all:",(image_caches['one'])
     print '第二步:开启全局sess'
     sess = tf.Session()
