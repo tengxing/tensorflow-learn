@@ -16,3 +16,5 @@ mnist：
 [github](http://www.github.com/tengxing "悬停显示")
 [我的博客](http://www.blog.yjxxclub.cn "悬停显示")
 [csdn博客](http://www.blog.csdn.net/tengxing007"悬停显示")
+
+特别说明:有错之处，欢迎指正，tengxing7452@163.com
