@@ -24,7 +24,7 @@ def getpool3(sess,data_tensor,labels,step,bottleneck_tensor,image_data_tensor):
         #print train_img
     return None,None
 
-#把值转化为集合(1,0)
+#把值转化为集合(one,0)
 def get_data_batch(sess, img_batch,label_batch):
     input_img_batch, input_label_batch = sess.run([img_batch, label_batch])
     input_label_batches = []

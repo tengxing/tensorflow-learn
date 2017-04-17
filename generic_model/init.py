@@ -55,10 +55,10 @@ def variable_summaries(var):
 
 def add_final_training_ops(class_count, final_tensor_name, bottleneck_tensor):
   with tf.name_scope('input'):
-    bottleneck_input = tf.placeholder_with_default(
-        bottleneck_tensor, shape=[None, BOTTLENECK_TENSOR_SIZE],
-        name='BottleneckInputPlaceholder')
 
+    bottleneck_input = tf.placeholder(tf.float32,
+                                        [None, 2048],
+                                        name='BottleneckInputPlaceholder')
     ground_truth_input = tf.placeholder(tf.float32,
                                         [None, class_count],
                                         name='GroundTruthInput')
@@ -148,16 +148,16 @@ def main(_):
     init = tf.global_variables_initializer()
     sess.run(init)
 
-    #train_img,train_label = getpool3(sess,img,label,2,bottleneck_tensor,jpeg_data_tensor)
+    #train_img,train_label = getpool3(sess,img,label,two,bottleneck_tensor,jpeg_data_tensor)
 
     # 启动队列
     #threads = tf.train.start_queue_runners(sess=sess)
 
     # Run the training for as many cycles as requested on the command line.
-    for i in range(2000):
+    for i in range(4000):
         #input_img, input_label = get_data_batch(sess, img_batch, label_batch)
         input_img, input_label = get_data_batch1(data,2)
-        #print len(input_img[0]),len(input_label)
+        #print (input_img[0]),(input_label)
 
         # Feed the bottlenecks and ground truth into the graph, and run a training
         # step. Capture training summaries for TensorBoard with the `merged` op.

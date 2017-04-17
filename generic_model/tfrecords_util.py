@@ -20,7 +20,7 @@ cwd = os.getcwd()
 
 #参数设置
 #############################################################################################
-train_dir = {'dataset/train/1', 'dataset/train/2'} #训练图片文件夹
+train_dir = {'dataset/train/one', 'dataset/train/two'} #训练图片文件夹
 filename='train.tfrecords'    #生成train.tfrecords
 output_directory='tmp' #输出文件夹
 resize_height=512 #存储图片高度
@@ -73,8 +73,8 @@ def transform2tfrecord(train_dir, file_name, output_directory, resize_height, re
                     features=tf.train.Features(feature={
                         'image_raw': _bytes_feature(image_raw),
                         #'height': _int64_feature(image.shape[0]),
-                        #'width': _int64_feature(image.shape[1]),
-                        #'depth': _int64_feature(image.shape[2]),
+                        #'width': _int64_feature(image.shape[one]),
+                        #'depth': _int64_feature(image.shape[two]),
                         'label': _int64_feature(index)
                     })
                 )
