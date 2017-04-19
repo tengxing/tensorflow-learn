@@ -1,6 +1,6 @@
 # Copyright 2015 Google Inc. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version two.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -17,9 +17,9 @@
 
 Implements the inference/loss/training pattern for model building.
 
-1. inference() - Builds the model as far as is required for running the network
+test. inference() - Builds the model as far as is required for running the network
 forward to make predictions.
-2. loss() - Adds to the inference model the layers required to generate loss.
+two. loss() - Adds to the inference model the layers required to generate loss.
 3. training() - Adds to the loss model the Ops required to generate and
 apply gradients.
 
@@ -54,7 +54,7 @@ def inference(images, hidden1_units, hidden2_units):
   Returns:
     softmax_linear: Output tensor with the computed logits.
   """
-  # Hidden 1
+  # Hidden one
   with tf.name_scope('hidden1'):
     weights = tf.Variable(
         tf.truncated_normal([IMAGE_PIXELS, hidden1_units],
@@ -63,7 +63,7 @@ def inference(images, hidden1_units, hidden2_units):
     biases = tf.Variable(tf.zeros([hidden1_units]),
                          name='biases')
     hidden1 = tf.nn.relu(tf.matmul(images, weights) + biases)
-  # Hidden 2
+  # Hidden two
   with tf.name_scope('hidden2'):
     weights = tf.Variable(
         tf.truncated_normal([hidden1_units, hidden2_units],
@@ -95,9 +95,9 @@ def loss(logits, labels):
     loss: Loss tensor of type float.
   """
   # Convert from sparse integer labels in the range [0, NUM_CLASSES)
-  # to 1-hot dense float vectors (that is we will have batch_size vectors,
+  # to one-hot dense float vectors (that is we will have batch_size vectors,
   # each with NUM_CLASSES values, all of which are 0.0 except there will
-  # be a 1.0 in the entry corresponding to the label).
+  # be a one.0 in the entry corresponding to the label).
   batch_size = tf.size(labels)
   labels = tf.expand_dims(labels, 1)
   indices = tf.expand_dims(tf.range(0, batch_size), 1)
@@ -154,7 +154,7 @@ def evaluation(logits, labels):
   """
   # For a classifier model, we can use the in_top_k Op.
   # It returns a bool tensor with shape [batch_size] that is true for
-  # the examples where the label's is was in the top k (here k=1)
+  # the examples where the label's is was in the top k (here k=one)
   # of all logits for that example.
   correct = tf.nn.in_top_k(logits, labels, 1)
   # Return the number of true entries.

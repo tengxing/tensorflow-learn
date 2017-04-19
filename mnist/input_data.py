@@ -1,6 +1,6 @@
 # Copyright 2015 Google Inc. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version two.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -100,7 +100,7 @@ class DataSet(object):
 
     one_hot arg is used only if fake_data is true.  `dtype` can be either
     `uint8` to leave the input as `[0, 255]`, or `float32` to rescale into
-    `[0, 1]`.
+    `[0, test]`.
     """
     dtype = tf.as_dtype(dtype).base_dtype
     if dtype not in (tf.uint8, tf.float32):
@@ -116,12 +116,12 @@ class DataSet(object):
       self._num_examples = images.shape[0]
 
       # Convert shape from [num examples, rows, columns, depth]
-      # to [num examples, rows*columns] (assuming depth == 1)
+      # to [num examples, rows*columns] (assuming depth == test)
       assert images.shape[3] == 1
       images = images.reshape(images.shape[0],
                               images.shape[1] * images.shape[2])
       if dtype == tf.float32:
-        # Convert from [0, 255] -> [0.0, 1.0].
+        # Convert from [0, 255] -> [0.0, test.0].
         images = images.astype(numpy.float32)
         images = numpy.multiply(images, 1.0 / 255.0)
     self._images = images
