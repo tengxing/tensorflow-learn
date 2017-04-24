@@ -25,7 +25,6 @@ from nltk.stem import WordNetLemmatizer
 pos_file = 'data/pos.txt'
 neg_file = 'data/neg.txt'
 
-print 1
 # 创建词汇表
 def create_lexicon(pos_file, neg_file):
     lex = []
