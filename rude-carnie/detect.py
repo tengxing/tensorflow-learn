@@ -1,6 +1,9 @@
+# -*- coding: UTF-8 -*-
 import numpy as np
 import tensorflow as tf
 import cv2
+import matplotlib.image as mpimg # mpimg 用于读取图片
+import matplotlib.pyplot as plt
 
 FACE_PAD = 50
 
@@ -28,9 +31,17 @@ class ObjectDetectorCascadeOpenCV(ObjectDetector):
     def run(self, image_file):
         print(image_file)
         img = cv2.imread(image_file)
+        #img = mpimg.imread(image_file)
+        plt.imshow(img)  # 显示图片
+        plt.axis('off')  # 不显示坐标轴
+        plt.show()
         min_h = int(max(img.shape[0] / self.min_height_dec, self.min_height_thresh))
         min_w = int(max(img.shape[1] / self.min_width_dec, self.min_width_thresh))
+
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        plt.imshow(gray)  # 显示图片
+        plt.axis('off')  # 不显示坐标轴
+        plt.show()
         faces = self.face_cascade.detectMultiScale(gray, 1.3, minNeighbors=5, minSize=(min_h, min_w))
 
         images = []

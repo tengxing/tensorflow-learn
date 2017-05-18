@@ -1,0 +1,14 @@
+人脸识别 性别加年龄
+
+中文说明书：
+    1 git clone 这个项目
+    2 因为这里面全是模型代码，想要运行的话，可以有两种方式
+        ① 导入训练好的模型进行预测 ② 下载数据集训练先训练出模型
+        这个介绍第一种，第二种在我的csdn博客:blog.csdn.net/tengxing007
+    3 模型下载地址 我上传至百度网盘：
+    4 运行
+    python rude-carnie/guess.py --model_type inception --class_type age --model_dir ~/workspace/tensorflow/model/sex-age_model/inception/age --filename ~/tmp/aa/001.png
+    上面的几个参数必须加上,性别预测换为sex即可
+
+
+
