@@ -1,0 +1,1 @@
+这是文件夹是一个工具类,用于python加载properties文件.
