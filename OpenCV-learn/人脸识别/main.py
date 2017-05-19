@@ -15,16 +15,18 @@ from faceUtil import *
 
 filename = "./input/002.jpg"
 face_model = ""
-output_name = "./out/%s.jpg" % (time.time())
+output_name = "./out/%s.jpg" % (time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
 #image_file = sys.argv[1]
 #if not (image_file):
 #    img_name = filename
 img_name = filename
 
+# 图像检测
 images,img = detect_faces(model_face, img_name)
 
-save_image(output_name,img)
+# 保存图像
+save_image(output_name, img)
 
 
 

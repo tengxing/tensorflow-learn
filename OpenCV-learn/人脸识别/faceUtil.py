@@ -1,10 +1,10 @@
-###################################################################
-# -*- coding:utf8 -*-
-# created by tengxing on 2017.5.19
-# mail tengxing7452@163.com
-# github github.com/tengxing
-# description opencv 人脸识别
-####################################################################
+############################################################################
+# -*- coding:utf8 -*-                                                      #
+# created by tengxing on 2017.5.19                                         #
+# mail tengxing7452@163.com                                                #
+# github github.com/tengxing                                               #
+# description opencv 人脸识别                                               #
+############################################################################
 
 import cv2
 import matplotlib as plt
@@ -25,13 +25,11 @@ def get_model_type(model_name):
 
 ## 人脸识别
 ## return faces and img
-def detectFaces(face_model,image_name):
+def detect_faces(face_model,image_name):
     face_cascade = get_model_type(face_model)
+    print image_name
     img = cv2.imread(image_name)
-    # img = mpimg.imread(image_file)
-    plt.imshow(img)  # 显示图片
-    plt.axis('off')  # 不显示坐标轴
-    plt.show()
+    print img
     min_h = int(max(img.shape[0] / min_height_dec, min_height_thresh))
     min_w = int(max(img.shape[1] / min_width_dec, min_width_thresh))
 
@@ -39,9 +37,6 @@ def detectFaces(face_model,image_name):
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     else:
         gray = img
-    plt.imshow(gray)  # 显示图片
-    plt.axis('off')  # 不显示坐标轴
-    plt.show()
     faces = face_cascade.detectMultiScale(gray, 1.3, minNeighbors=5, minSize=(min_h, min_w))
 
     result = []
@@ -65,3 +60,8 @@ def sub_image(name, img, x, y, w, h):
         roi_color = img[lower_cut[0]:upper_cut[0], lower_cut[1]:upper_cut[1]]
         cv2.imwrite(name, roi_color)
         return name
+
+
+## save image
+def save_image(filename, img):
+    cv2.imwrite(filename, img)
