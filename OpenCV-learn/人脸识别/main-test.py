@@ -7,13 +7,14 @@
 ############################################################################
 
 import cv2
-import matplotlib as plt
+import matplotlib
+import matplotlib.pyplot as plt
 import sys
 import time
 
 from faceUtil import *
 
-filename = "./input/002.jpg"
+filename = "./input/008.jpg"
 face_model = ""
 output_name = "./out/%s.jpg" % (time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
 
@@ -25,6 +26,10 @@ img_name = filename
 # 图像检测
 images,img = detect_faces(model_face, img_name)
 
+# 显示图片
+#plt.imshow(img)  # 显示图片
+#plt.axis('off')  # 不显示坐标轴
+#plt.show()
 # 保存图像
 save_image(output_name, img)
 
