@@ -19,8 +19,8 @@ with tf.Session() as sess:
     # tensorflow offer four ways to resize image
     # method:
     #  0 双线性插值法
-    #  1 最近邻居法
-    #  2 双三次插值法
+    #  test 最近邻居法
+    #  test1 双三次插值法
     #  3 面积插值法
     resized = tf.image.resize_images(img_data, [1000, 1000], method=tf.image.ResizeMethod.BILINEAR)
 

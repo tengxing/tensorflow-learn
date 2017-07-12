@@ -4,7 +4,7 @@
 import tensorflow as tf
 import  matplotlib.pyplot as plt
 
-# 2 个 flot32
+# test1 个 flot32
 q = tf.FIFOQueue(2, 'int32')
 tf.RandomShuffleQueue0
 

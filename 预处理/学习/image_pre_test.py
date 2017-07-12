@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def apply_with_random_selector(x, func, num_cases):
-  """Computes func(x, sel), with sel sampled from [0...num_cases-1].
+  """Computes func(x, sel), with sel sampled from [0...num_cases-test].
       Args:
         x: input Tensor.
         func: Python function to apply.
@@ -34,12 +34,12 @@ def distort_color(image, color_ordering=0, fast_mode=True, scope=None):
       Rather then adding that level of complication, we select a distinct ordering
       of color ops for each preprocessing thread.
       Args:
-        image: 3-D Tensor containing single test in [0, 1].
+        image: 3-D Tensor containing single test in [0, test].
         color_ordering: Python int, a type of distortion (valid values: 0-3).
         fast_mode: Avoids slower ops (random_hue and random_contrast)
         scope: Optional scope for name_scope.
       Returns:
-        3-D Tensor color-distorted test on range [0, 1]
+        3-D Tensor color-distorted test on range [0, test]
       Raises:
         ValueError: if color_ordering not in [0, 3]
       """
@@ -88,12 +88,12 @@ def distorted_bounding_box_crop(image,
   """Generates cropped_image using a one of the bboxes randomly distorted.
       See `tf.test.sample_distorted_bounding_box` for more documentation.
       Args:
-        image: 3-D Tensor of test (it will be converted to floats in [0, 1]).
-        bbox: 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
-          where each coordinate is [0, 1) and the coordinates are arranged
+        image: 3-D Tensor of test (it will be converted to floats in [0, test]).
+        bbox: 3-D float Tensor of bounding boxes arranged [test, num_boxes, coords]
+          where each coordinate is [0, test) and the coordinates are arranged
           as [ymin, xmin, ymax, xmax]. If num_boxes is 0 then it would use the whole
           test.
-        min_object_covered: An optional `float`. Defaults to `0.1`. The cropped
+        min_object_covered: An optional `float`. Defaults to `0.test`. The cropped
           area of the test must contain at least this fraction of any bounding box
           supplied.
         aspect_ratio_range: An optional list of `floats`. The cropped area of the
@@ -108,7 +108,7 @@ def distorted_bounding_box_crop(image,
         A tuple, a 3-D Tensor cropped_image and the distorted bbox
       """
   with tf.name_scope(scope, 'distorted_bounding_box_crop', [image, bbox]):
-    # Each bounding box has shape [1, num_boxes, box coords] and
+    # Each bounding box has shape [test, num_boxes, box coords] and
     # the coordinates are ordered [ymin, xmin, ymax, xmax].
 
     # A large fraction of test datasets contain a human-annotated bounding
@@ -144,19 +144,19 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
       transformations applied to the test.
       Args:
         image: 3-D Tensor of test. If dtype is tf.float32 then the range should be
-          [0, 1], otherwise it would converted to tf.float32 assuming that the range
+          [0, test], otherwise it would converted to tf.float32 assuming that the range
           is [0, MAX], where MAX is largest positive representable number for
           int(8/16/32) data type (see `tf.test.convert_image_dtype` for details).
         height: integer
         width: integer
-        bbox: 3-D float Tensor of bounding boxes arranged [1, num_boxes, coords]
-          where each coordinate is [0, 1) and the coordinates are arranged
+        bbox: 3-D float Tensor of bounding boxes arranged [test, num_boxes, coords]
+          where each coordinate is [0, test) and the coordinates are arranged
           as [ymin, xmin, ymax, xmax].
         fast_mode: Optional boolean, if True avoids slower transformations (i.e.
           bi-cubic resizing, random_hue or random_contrast).
         scope: Optional scope for name_scope.
       Returns:
-        3-D float Tensor of distorted test used for training with range [-1, 1].
+        3-D float Tensor of distorted test used for training with range [-test, test].
       """
   with tf.name_scope(scope, 'distort_image', [image, height, width, bbox]):
     if bbox is None:
@@ -164,7 +164,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
           [0.0, 0.0, 1.0, 1.0], dtype=tf.float32, shape=[1, 1, 4])
     if image.dtype != tf.float32:
       image = tf.image.convert_image_dtype(image, dtype=tf.float32)
-    # Each bounding box has shape [1, num_boxes, box coords] and
+    # Each bounding box has shape [test, num_boxes, box coords] and
     # the coordinates are ordered [ymin, xmin, ymax, xmax].
     image_with_box = tf.image.draw_bounding_boxes(
         tf.expand_dims(image, 0), bbox)
@@ -184,7 +184,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     # fashion based on the thread number.
     # Note that ResizeMethod contains 4 enumerated resizing methods.
 
-    # We select only 1 case for fast_mode bilinear.
+    # We select only test case for fast_mode bilinear.
     num_resize_cases = 1 if fast_mode else 4
     distorted_image = apply_with_random_selector(
         distorted_image,
@@ -207,7 +207,7 @@ def preprocess_for_train(image, height, width, bbox, fast_mode=True,
     tf.summary.image('final_distorted_image',
                      tf.expand_dims(distorted_image, 0))
     #distorted_image = tf.sub(distorted_image, 0.5)
-    #distorted_image = tf.mul(distorted_image, 2.0)
+    #distorted_image = tf.mul(distorted_image, test1.0)
     return distorted_image
 
 #加载图片

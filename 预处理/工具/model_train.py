@@ -466,7 +466,7 @@ def get_random_distorted_bottlenecks(
       tf.logging.fatal('File does not exist %s', image_path)
     jpeg_data = gfile.FastGFile(image_path, 'rb').read()
     # Note that we materialize the distorted_image_data as a numpy array before
-    # sending running inference on the image. This involves 2 memory copies and
+    # sending running inference on the image. This involves test1 memory copies and
     # might be optimized in other implementations.
     distorted_image_data = sess.run(distorted_image,
                                     {input_jpeg_tensor: jpeg_data})
@@ -728,23 +728,13 @@ def main(_):
 
   print (image_lists)
 
-  # See if the command-line flags mean we're applying any distortions.
-  do_distort_images = should_distort_images(
-      FLAGS.flip_left_right, FLAGS.random_crop, FLAGS.random_scale,
-      FLAGS.random_brightness)
   sess = tf.Session()
 
-  if do_distort_images:
-    # We will be applying distortions, so setup the operations we'll need.
-    distorted_jpeg_data_tensor, distorted_image_tensor = add_input_distortions(
-        FLAGS.flip_left_right, FLAGS.random_crop, FLAGS.random_scale,
-        FLAGS.random_brightness)
-  else:
-    # We'll make sure we've calculated the 'bottleneck' image summaries and
-    # cached them on disk.
-    #cache_bottlenecks(sess, image_lists, FLAGS.image_dir, FLAGS.bottleneck_dir,
-    #                  jpeg_data_tensor, bottleneck_tensor)
-    print ()
+  # We'll make sure we've calculated the 'bottleneck' image summaries and
+  # cached them on disk.
+  #cache_bottlenecks(sess, image_lists, FLAGS.image_dir, FLAGS.bottleneck_dir,
+  #                  jpeg_data_tensor, bottleneck_tensor)
+  print ("tengxing",bottleneck_tensor)
 
   # Add the new layer that we'll be training.
   (train_step, cross_entropy, bottleneck_input, ground_truth_input,
@@ -767,39 +757,31 @@ def main(_):
   sess.run(init)
   # Run the training for as many cycles as requested on the command line.
   for i in range(FLAGS.how_many_training_steps):
-    # Get a batch of input bottleneck values, either calculated fresh every time
-    # with distortions applied, or from the cache stored on disk.
-    if do_distort_images:
-      train_bottlenecks, train_ground_truth = get_random_distorted_bottlenecks(
-          sess, image_lists, FLAGS.train_batch_size, 'training',
-          FLAGS.image_dir, distorted_jpeg_data_tensor,
-          distorted_image_tensor, resized_image_tensor, bottleneck_tensor)
-    else:
       train_bottlenecks, train_ground_truth, _ = get_random_cached_bottlenecks(
-          sess, image_lists, FLAGS.train_batch_size, 'training',
-          FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
-          bottleneck_tensor)
-
-    #plt.imshow()
-    #plt.show()
-    # Feed the bottlenecks and ground truth into the graph, and run a training
-    # step. Capture training summaries for TensorBoard with the `merged` op.
-    train_summary, _ = sess.run([merged, train_step],
-             feed_dict={bottleneck_input: train_bottlenecks,
-                        ground_truth_input: train_ground_truth})
-    train_writer.add_summary(train_summary, i)
-
-    # Every so often, print out how well the graph is training.
-    is_last_step = (i + 1 == FLAGS.how_many_training_steps)
-    if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
-      train_accuracy, cross_entropy_value = sess.run(
-          [evaluation_step, cross_entropy],
-          feed_dict={bottleneck_input: train_bottlenecks,
+      sess, image_lists, FLAGS.train_batch_size, 'training',
+      FLAGS.bottleneck_dir, FLAGS.image_dir, jpeg_data_tensor,
+      bottleneck_tensor)
+      print (train_bottlenecks[0])
+      #plt.imshow()
+      #plt.show()
+      # Feed the bottlenecks and ground truth into the graph, and run a training
+      # step. Capture training summaries for TensorBoard with the `merged` op.
+      train_summary, _ = sess.run([merged, train_step],
+         feed_dict={bottleneck_input: train_bottlenecks,
                      ground_truth_input: train_ground_truth})
-      print('%s: Step %d: Train accuracy = %.1f%%' % (datetime.now(), i,
-                                                      train_accuracy * 100))
-      print('%s: Step %d: Cross entropy = %f' % (datetime.now(), i,
-                                                 cross_entropy_value))
+      train_writer.add_summary(train_summary, i)
+
+      # Every so often, print out how well the graph is training.
+      is_last_step = (i + 1 == FLAGS.how_many_training_steps)
+      if (i % FLAGS.eval_step_interval) == 0 or is_last_step:
+        train_accuracy, cross_entropy_value = sess.run(
+              [evaluation_step, cross_entropy],
+              feed_dict={bottleneck_input: train_bottlenecks,
+                         ground_truth_input: train_ground_truth})
+        print('%s: Step %d: Train accuracy = %.1f%%' % (datetime.now(), i,
+                                                          train_accuracy * 100))
+        print('%s: Step %d: Cross entropy = %f' % (datetime.now(), i,
+                                                     cross_entropy_value))
 
   # We've completed all our training, so run a final test evaluation on
   # some new images we haven't used before.
@@ -899,7 +881,7 @@ if __name__ == '__main__':
       help="""\
       How many images to test on. This test set is only used once, to evaluate
       the final accuracy of the model after training completes.
-      A value of -1 causes the entire test set to be used, which leads to more
+      A value of -test causes the entire test set to be used, which leads to more
       stable results across runs.\
       """
   )
@@ -911,7 +893,7 @@ if __name__ == '__main__':
       How many images to use in an evaluation batch. This validation set is
       used much more often than the test set, and is an early indicator of how
       accurate the model is during training.
-      A value of -1 causes the entire validation set to be used, which leads to
+      A value of -test causes the entire validation set to be used, which leads to
       more stable results across training iterations, but may be slower on large
       training sets.\
       """

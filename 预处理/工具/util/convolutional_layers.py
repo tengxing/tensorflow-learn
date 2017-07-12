@@ -1,5 +1,5 @@
 import tensorflow as tf
-from model import *
+from convolutional_model import *
 from PIL import Image
 
 WINDOW_SHAPE = (64, 128)
@@ -11,7 +11,7 @@ def a():
 
     """
     x = tf.placeholder(tf.float32, [None, None, None])
-    image = Image.open("1.jpg")
+    image = Image.open("0.jpg")
     image = image.tobytes()
     image = tf.decode_raw(image,tf.uint8)
     image = tf.cast(image, tf.float32) * (1. / 255) - 0.5

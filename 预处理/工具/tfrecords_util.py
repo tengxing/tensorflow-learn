@@ -62,7 +62,7 @@ def transform2tfrecord(train_dir, file_name, output_directory, resize_height, re
         for image_name in os.listdir(class_path):
             image_path = class_path + image_name
             #image = Image.open(image_path)
-            #image = image.resize((resize_height, resize_width))
+            image = image.resize((resize_height, resize_width))
             print index
             image = cv2.imread(image_path)
             image = cv2.resize(image, (resize_height, resize_width))
@@ -108,7 +108,7 @@ def read_tfrecord(file_dir, filename):
     encoded_image = tf.decode_raw(features['image_raw'], tf.uint8)
     #encoded_image.set_shape([features['height'], features['width'], features['depth']])
     # image
-    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width*3])
+    encoded_image = tf.reshape(encoded_image, [resize_height*resize_width,3])
     # normalize
     image = tf.cast(encoded_image, tf.float32) * (1. / 255) - 0.5
     # label
@@ -192,7 +192,10 @@ train_step = tf.train.GradientDescentOptimizer(0.01).minimize(cross_entropy)
 img_batch, label_batch = tf.train.shuffle_batch([img, label],
                                                 batch_size=2, capacity=2000,
                                                 min_after_dequeue=1000)
+print img_batch.shape
 
+image = tf.nn.max_pool(img_batch,ksize=[1,4,2,1],strides=[1,4,2,1],padding="SAME")
+print image.shape
 # 初始化所有的op
 init = tf.global_variables_initializer()
 
