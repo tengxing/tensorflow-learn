@@ -74,12 +74,10 @@ train_step = tf.train.GradientDescentOptimizer(1e-3).minimize(cross_entropy)
 correct_prediction = tf.equal(tf.argmax(y_conv, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 sess.run(tf.global_variables_initializer())
-for i in range(6000):
-	batch = mnist.train.next_batch(1)
-	print len(((batch[0])[0]))
+for i in range(1000):
+	batch = mnist.train.next_batch(100)
 	if i%100 == 0:
-
 		train_accuracy = accuracy.eval(feed_dict={x:batch[0], y_:batch[1], keep_prob:1.0})
 		print "step %d, train accuracy %g" %(i, train_accuracy)
 	train_step.run(feed_dict={x:batch[0], y_:batch[1], keep_prob:0.5})
-print "python_base accuracy %g" % accuracy.eval(feed_dict={x:mnist.test.images, y_:mnist.test.labels, keep_prob:1.0})
+print "python_base accuracy %g" % accuracy.eval(feed_dict={x:mnist.test.images[0:500], y_:mnist.test.labels[0:500], keep_prob:1.0})
