@@ -1,4 +1,9 @@
-# encoding=utf-8
+#========================coding=utf-8==============================
+# created on 2017.01
+# github.com/tengxing
+# 利用模型写诗
+#==========================================================
+
 import collections
 import numpy as np
 import tensorflow as tf
@@ -110,7 +115,9 @@ def neural_network(model='lstm', rnn_size=128, num_layers=2):
 
 def gen_poetry():
     def to_word(weights):
+
         t = np.cumsum(weights)
+
         s = np.sum(weights)
         sample = int(np.searchsorted(t, np.random.rand(1) * s))
         return words[sample]
@@ -124,7 +131,6 @@ def gen_poetry():
         saver.restore(sess, './poetry.module-49')
 
         state_ = sess.run(cell.zero_state(1, tf.float32))
-
         x = np.array([list(map(word_num_map.get, '['))])
         [probs_, state_] = sess.run([probs, last_state], feed_dict={input_data: x, initial_state: state_})
         word = to_word(probs_)
@@ -136,11 +142,12 @@ def gen_poetry():
             x[0, 0] = word_num_map[word]
             [probs_, state_] = sess.run([probs, last_state], feed_dict={input_data: x, initial_state: state_})
             word = to_word(probs_)
+
         # word = words[np.argmax(probs_)]
         return poem
 
 
-#print(gen_poetry())
+print(gen_poetry())
 
 
 def gen_poetry_with_head(head):
@@ -176,4 +183,4 @@ def gen_poetry_with_head(head):
         return poem
 
 
-print(gen_poetry_with_head('一二三四'))
+#print(gen_poetry_with_head('一二三四'))

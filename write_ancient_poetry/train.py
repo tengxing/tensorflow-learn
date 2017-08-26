@@ -1,4 +1,9 @@
-# encoding=utf-8
+#========================coding=utf-8==============================
+# created on 2017.01
+# github.com/tengxing
+# 训练古诗模型
+#==========================================================
+
 import collections
 import numpy as np
 import tensorflow as tf
