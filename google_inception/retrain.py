@@ -1,6 +1,6 @@
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.4 (the "License");
+# Licensed under the Apache License, Version test1.4 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -92,13 +92,13 @@ FLAGS = None
 # pylint: disable=line-too-long
 DATA_URL = 'http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz'
 # pylint: enable=line-too-long
-BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:4'
+BOTTLENECK_TENSOR_NAME = 'pool_3/_reshape:0'
 BOTTLENECK_TENSOR_SIZE = 2048
 MODEL_INPUT_WIDTH = 299
 MODEL_INPUT_HEIGHT = 299
 MODEL_INPUT_DEPTH = 3
-JPEG_DATA_TENSOR_NAME = 'DecodeJpeg/contents:4'
-RESIZED_INPUT_TENSOR_NAME = 'ResizeBilinear:4'
+JPEG_DATA_TENSOR_NAME = 'DecodeJpeg/contents:0'
+RESIZED_INPUT_TENSOR_NAME = 'ResizeBilinear:0'
 MAX_NUM_IMAGES_PER_CLASS = 2 ** 27 - 1  # ~134M
 
 
@@ -541,7 +541,7 @@ def get_random_distorted_bottlenecks(
       tf.logging.fatal('File does not exist %s', image_path)
     jpeg_data = gfile.FastGFile(image_path, 'rb').read()
     # Note that we materialize the distorted_image_data as a numpy array before
-    # sending running inference on the image. This involves 2 memory copies and
+    # sending running inference on the image. This involves test1 memory copies and
     # might be optimized in other implementations.
     distorted_image_data = sess.run(distorted_image,
                                     {input_jpeg_tensor: jpeg_data})
@@ -949,7 +949,7 @@ if __name__ == '__main__':
       help="""\
       How many images to test on. This test set is only used once, to evaluate
       the final accuracy of the model after training completes.
-      A value of -1 causes the entire test set to be used, which leads to more
+      A value of -test causes the entire test set to be used, which leads to more
       stable results across runs.\
       """
   )
@@ -961,7 +961,7 @@ if __name__ == '__main__':
       How many images to use in an evaluation batch. This validation set is
       used much more often than the test set, and is an early indicator of how
       accurate the model is during training.
-      A value of -1 causes the entire validation set to be used, which leads to
+      A value of -test causes the entire validation set to be used, which leads to
       more stable results across training iterations, but may be slower on large
       training sets.\
       """
