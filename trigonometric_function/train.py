@@ -1,4 +1,10 @@
-# -*-coding:utf-8-*-
+############################################################################
+# -*- coding:utf8 -*-                                                      #
+# created by tengxing on 2017.5.19                                         #
+# mail tengxing7452@163.com                                                #
+# github github.com/tengxing                                               #
+# description 三角函数                                          #
+############################################################################
 
 import tensorflow as tf
 import numpy as np
@@ -77,8 +83,8 @@ print ("Mean Square Error is: %f" % rmse[0])
 Mean Square Error is: 0.007281
 '''
 fig = plt.figure()
-plot_predicted = plt.plot(predicted, label = 'predicted')
-plot_test = plt.plot(test_y, label='real_sin')
-plt.legend([plot_predicted, plot_test], ['predicted', 'real_sin'])
+plot_predicted = plt.plot(predicted, label = 'predicted', color="blue",marker='|', linestyle=':')
+plot_test = plt.plot(test_y, label='real_sin', color="red")
+#plt.legend([plot_predicted, plot_test], ['predicted', 'real_sin'])
 fig.savefig('sin.png')
 plt.show();
