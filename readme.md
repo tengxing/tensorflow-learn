@@ -15,9 +15,10 @@ mnist：
 
 
 刚刚建立了一个群，有兴趣的来
-## 企鹅群：160632027
+## 企鹅群：**160632027**
 
 
+ ![maze](https://github.com/tengxing/tensorflow-learn/blob/master/qqqun.jpg)
 
 [github](http://www.github.com/tengxing "悬停显示")
 [我的博客](http://www.blog.yjxxclub.cn "悬停显示")
