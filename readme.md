@@ -12,6 +12,9 @@ tfrecords的制作：制作·读取·加入队列
 mnist：
 官方例子(新手建议先不看train.py)
 
+刚刚建立了一个群，有兴趣的来
+## 企鹅群：160632027
+
 
 
 [github](http://www.github.com/tengxing "悬停显示")
