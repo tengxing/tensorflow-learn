@@ -29,3 +29,9 @@ mnist：
 特别说明:
 - 有错之处，欢迎指正，tengxing7452@163.com
 - 由于部分文章取自互联网，如有侵权，请联系我，立即删除
+
+##说明一下子
+后面我上传的栗子都带有3部分：
+prepare-data.py --准备data
+model-train.py -- 模型训练
+test.py --测试
