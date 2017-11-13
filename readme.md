@@ -32,8 +32,10 @@ mnist：
 
 说明一下子,后面我上传的栗子都带有3部分：
 
-prepare-data.py --准备data
+prepare_data.py --准备data
 
-model-train.py -- 模型训练
+prepare_model.py --准备模型
+
+model.py --训练
 
 test.py --测试
