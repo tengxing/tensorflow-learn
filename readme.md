@@ -2,7 +2,7 @@
 ## 宗旨：将开源进行到底
 ## 最近大改大家敬请期待
 
-小白的tensorflow学习修炼之路,代码供大家参考，不错的话给个start呗
+小白的tensorflow学习修炼之路,代码供大家参考，听说喜欢star童鞋运气都不会差，嘻嘻……
 
 正在慢慢增加各种小栗子(其中数据集没有的话，记得邮箱我)
 
@@ -32,8 +32,10 @@ mnist：
 
 说明一下子,后面我上传的栗子都带有3部分：
 
-prepare-data.py --准备data
+prepare_data.py --准备data
 
-model-train.py -- 模型训练
+prepare_model.py --准备模型
+
+model.py --训练
 
 test.py --测试
