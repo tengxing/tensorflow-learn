@@ -34,7 +34,7 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver.restore(sess,"./poetry_model.ckpt")
+        saver.restore(sess,"data/poetry_model.ckpt")
         next_state = sess.run(initial_state)
 
         x = np.zeros((1, 1))

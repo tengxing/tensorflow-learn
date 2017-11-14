@@ -37,4 +37,4 @@ if __name__ == '__main__':
                 n = step/1000
                 sess.run(tf.assign(learning_rate, 0.002 * (0.97 ** n)))
             step += 1
-        saver.save(sess,"poetry_model.ckpt")
+        saver.save(sess,"data/poetry_model.ckpt")
