@@ -1,0 +1,2 @@
+model_checkpoint_path: "poetry_model.ckpt"
+all_model_checkpoint_paths: "poetry_model.ckpt"
